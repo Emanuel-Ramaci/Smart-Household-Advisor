@@ -1,0 +1,50 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <link rel="stylesheet" href="/css/style.css" />
+    <title>Home Page | Smart Household Advisor</title>
+  </head>
+  <body>
+    <div class="top-bar">
+      <div class="right-buttons">
+        <button id="logoutBtn" class="logout-btn">⎋ Logout</button>
+      </div>
+    </div>
+    <h2>Benvenuto <span th:text="${user.firstName}"></span>!👋🏻</h2>
+
+    <h3>Le tue Household:</h3>
+    <div th:if="${households.size() == 0}" class="animate-in">
+      <p>Non sei associato a nessuna Household.</p>
+    </div>
+
+    <div th:each="household : ${households}" class="animate-in">
+      <h4 th:text="${household.name}"></h4>
+      <p
+        th:text="${household.address} + ', ' + ${household.city} + ', ' + ${household.postalCode}"
+      ></p>
+
+      <form th:action="@{/energy-consumptions}" method="get">
+        <input type="hidden" name="householdId" th:value="${household.id}" />
+        <button type="submit">Aggiungi consumo energetico</button>
+      </form>
+
+      <form th:action="@{/expenses}" method="get">
+        <input type="hidden" name="householdId" th:value="${household.id}" />
+        <button type="submit">Aggiungi spesa</button>
+      </form>
+
+      <form th:action="@{/simulations}" method="get">
+        <input type="hidden" name="householdId" th:value="${household.id}" />
+        <button type="submit">Simulazioni</button>
+      </form>
+
+      <hr />
+    </div>
+
+    <form th:action="@{/household/new}" method="get" class="animate-in">
+      <input type="hidden" name="userId" th:value="${user.id}" />
+      <button type="submit">Crea una nuova Household</button>
+    </form>
+    <script src="/js/logout.js"></script>
+  </body>
+</html>

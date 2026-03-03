@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="it" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <link rel="stylesheet" href="/css/style.css" />
+    <meta charset="UTF-8" />
+    <title>Simulations Page | Smart Household Advisor</title>
+  </head>
+  <body>
+    <div class="top-bar">
+      <div class="left-buttons">
+        <button class="home-btn" onclick="window.location.href = '/home'">
+          🏠 Home
+        </button>
+      </div>
+      <div class="right-buttons">
+        <button id="logoutBtn" class="logout-btn">⎋ Logout</button>
+      </div>
+    </div>
+    <h2>Simulazioni per la tua Household</h2>
+    <p style="display: none">
+      <span id="householdId" th:text="${householdId}"></span>
+    </p>
+    <!-- HEATING REDUCTION -->
+    <h3>Heating Reduction Simulation</h3>
+    <form id="heatingForm" class="animate-in">
+      <label>Consumo attuale (kWh):</label>
+      <input
+        type="number"
+        id="currentConsumptionKwh"
+        step="0.01"
+        required
+      /><br />
+
+      <label>Riduzione di temperatura (°C):</label>
+      <input type="number" id="reductionDegrees" step="0.01" required /><br />
+
+      <label>Tariffa energetica (€/kWh):</label>
+      <input
+        type="number"
+        id="energyTariffHeating"
+        step="0.01"
+        required
+      /><br />
+
+      <button type="submit">Avvia simulazione</button>
+    </form>
+    <p id="heatingResult"></p>
+    <hr />
+
+    <!-- TIMESHIFT -->
+    <h3>Time Shift Simulation</h3>
+    <form id="timeShiftForm" class="animate-in">
+      <label>Consumo degli elettrodomestici (kWh):</label>
+      <input
+        type="number"
+        id="applianceConsumption"
+        step="0.01"
+        required
+      /><br />
+
+      <label>Tariffa energetica (€/kWh):</label>
+      <input type="number" id="energyTariffTimeShift" step="0.01" required />
+      <br />
+
+      <button type="submit">Avvia simulazione</button>
+    </form>
+    <p id="timeShiftResult"></p>
+    <hr />
+
+    <!-- STANDBY -->
+    <h3>Standby Simulation</h3>
+    <form id="standbyForm" class="animate-in">
+      <label>Consumo in standby (kWh):</label>
+      <input type="number" id="standbyConsumption" step="0.01" required /><br />
+
+      <label>Tariffa energetica (€/kWh):</label>
+      <input
+        type="number"
+        id="energyTariffStandby"
+        step="0.01"
+        required
+      /><br />
+
+      <button type="submit">Avvia simulazione</button>
+    </form>
+    <p id="standbyResult"></p>
+    <hr />
+
+    <h3>Storico delle tue simulazioni</h3>
+    <table border="1" id="simulationHistory" class="animate-in">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Tipo</th>
+          <th>Risparmio (kWh)</th>
+          <th>Risparmio (€)</th>
+          <th>Dettagli</th>
+          <th>Azioni</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <script src="/js/simulations.js"></script>
+    <script src="/js/logout.js"></script>
+  </body>
+</html>

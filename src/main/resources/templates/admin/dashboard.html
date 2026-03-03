@@ -1,0 +1,248 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <link rel="stylesheet" href="/css/style.css" />
+    <title>Admin Dashboard Page | Smart Household Advisor</title>
+    <style>
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        margin-bottom: 20px;
+      }
+      th,
+      td {
+        border: 1px solid #ccc;
+        padding: 5px;
+        text-align: left;
+      }
+      .collapsed {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="top-bar">
+      <div class="right-buttons">
+        <button id="logoutBtn" class="logout-btn">⎋ Logout</button>
+      </div>
+    </div>
+    <h1>Dashboard Admin</h1>
+    <h2>Benvenuto <span th:text="${user.firstName}"></span>!👋🏻</h2>
+
+    <h2>Crea un nuovo utente</h2>
+    <form id="createUserForm" class="animate-in">
+      <label>Email:</label>
+      <input type="email" id="email" required /><br />
+      <label>Nome:</label>
+      <input type="text" id="firstName" required /><br />
+      <label>Cognome:</label>
+      <input type="text" id="lastName" required /><br />
+      <label>Password:</label>
+      <input type="password" id="password" required /><br />
+      <label>Ruolo:</label>
+      <input
+        type="text"
+        id="roleNames"
+        placeholder="USER, ADMIN"
+        required
+      /><br /><br />
+      <button type="submit" id="createUserBtn">Crea utente</button>
+    </form>
+
+    <p id="userMsg" style="color: green"></p>
+
+    <h2>Risorse da gestire</h2>
+    <button type="button" onclick="toggleSection('usersTable')">Users</button>
+    <table id="usersTable" class="collapsed animate-in">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Email</th>
+          <th>Nome</th>
+          <th>Cognome</th>
+          <th>Attivo</th>
+          <th>Ruoli</th>
+          <th>Azioni</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="u : ${users}">
+          <td th:text="${u.id}"></td>
+          <td th:text="${u.email}"></td>
+          <td th:text="${u.firstName}"></td>
+          <td th:text="${u.lastName}"></td>
+          <td th:text="${u.active}"></td>
+          <td th:text="${u.roleNames}"></td>
+          <td>
+            <button
+              type="button"
+              th:attr="data-id=${u.id}"
+              onclick="toggleActive(this)"
+            >
+              Attiva/Disattiva
+            </button>
+            <button
+              type="button"
+              th:attr="data-id=${u.id}"
+              onclick="deleteUser(this)"
+            >
+              Elimina
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <button type="button" onclick="toggleSection('householdsTable')">
+      Households
+    </button>
+    <table id="householdsTable" class="collapsed animate-in">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nome</th>
+          <th>Indirizzo</th>
+          <th>Metri quadri</th>
+          <th>Classe energetica</th>
+          <th>Tariffa energetica</th>
+          <th>Numero di residenti</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="h : ${households}">
+          <td th:text="${h.id}"></td>
+          <td th:text="${h.name}"></td>
+          <td th:text="${h.address}"></td>
+          <td
+            th:text="${h.squareMeters.scale() == 0 ? h.squareMeters.intValue() : #numbers.formatDecimal(h.squareMeters, 1, 2)} + ' m²'"
+          ></td>
+          <td th:text="${h.energyClass}"></td>
+          <td
+            th:text="${h.energyTariff.scale() == 0 ? h.energyTariff.intValue() : #numbers.formatDecimal(h.energyTariff, 1, 2)} + ' €/kWh'"
+          ></td>
+          <td th:text="${h.residentsCount}"></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <button type="button" onclick="toggleSection('householdMembersTable')">
+      Household Members
+    </button>
+    <table id="householdMembersTable" class="collapsed animate-in">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Utente</th>
+          <th>Indirizzo abitazione</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="hm : ${householdMembers}">
+          <td th:text="${hm.id}"></td>
+          <td th:text="${hm.user.firstName + ' ' + hm.user.lastName}"></td>
+          <td
+            th:text="${hm.household.address + ', ' + hm.household.city + ', ' + hm.household.postalCode}"
+          ></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <button type="button" onclick="toggleSection('simulationResultsTable')">
+      Simulation Results
+    </button>
+    <table id="simulationResultsTable" class="collapsed animate-in">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Tipo di simulazione</th>
+          <th>Risparmio stimato in €</th>
+          <th>Risparmio stimato in kWh</th>
+          <th>Dati dei risultati</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="sr : ${simulationResults}">
+          <td th:text="${sr.id}"></td>
+          <td th:switch="${sr.simulationType}">
+            <span th:case="'HEATING_REDUCTION'">Heating Reduction</span>
+            <span th:case="'TIME_SHIFT'">Time Shift</span>
+            <span th:case="'STANDBY_ELIMINATION'">Standby Elimination</span>
+            <span th:case="*" th:text="${sr.simulationType}"></span>
+          </td>
+          <td
+            th:text="${sr.estimatedSavingEuro.scale() == 0 ? sr.estimatedSavingEuro.intValue() : #numbers.formatDecimal(sr.estimatedSavingEuro, 1, 2)} + ' €'"
+          ></td>
+          <td
+            th:text="${sr.estimatedSavingKwh.scale() == 0 ? sr.estimatedSavingKwh.intValue() : #numbers.formatDecimal(sr.estimatedSavingKwh, 1, 2)} + ' kWh'"
+          ></td>
+          <td><span class="result-data" th:text="${sr.resultData}"></span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <button type="button" onclick="toggleSection('energyConsumptionsTable')">
+      Energy Consumptions
+    </button>
+    <table id="energyConsumptionsTable" class="collapsed animate-in">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Categoria</th>
+          <th>Consumo</th>
+          <th>Data di riferimento</th>
+          <th>ID abitazione</th>
+          <th>Data e ora di creazione</th>
+          <th>Ultima modifica</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="ec : ${energyConsumptions}">
+          <td th:text="${ec.id}"></td>
+          <td th:text="${ec.category}"></td>
+          <td
+            th:text="${ec.consumptionKwh.scale() == 0 ? ec.consumptionKwh.intValue() : #numbers.formatDecimal(ec.consumptionKwh, 1, 2)} + ' kWh'"
+          ></td>
+          <td th:text="${ec.referenceDate}"></td>
+          <td th:text="${ec.householdId}"></td>
+          <td th:text="${ec.createdAt}"></td>
+          <td th:text="${ec.updatedAt}"></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <button type="button" onclick="toggleSection('expensesTable')">
+      Expenses
+    </button>
+    <table id="expensesTable" class="collapsed">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Categoria</th>
+          <th>Spesa</th>
+          <th>Data di riferimento</th>
+          <th>Descrizione</th>
+          <th>ID abitazione</th>
+          <th>Data e ora di creazione</th>
+          <th>Ultima modifica</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="ex : ${expenses}">
+          <td th:text="${ex.id}"></td>
+          <td th:text="${ex.category}"></td>
+          <td
+            th:text="${ex.amount.scale() == 0 ? ex.amount.intValue() : #numbers.formatDecimal(ex.amount, 1, 2)} + ' €'"
+          ></td>
+          <td th:text="${ex.referenceDate}"></td>
+          <td th:text="${ex.description}"></td>
+          <td th:text="${ex.householdId}"></td>
+          <td th:text="${ex.createdAt}"></td>
+          <td th:text="${ex.updatedAt}"></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <script src="/js/admin-dashboard.js"></script>
+    <script src="/js/logout.js"></script>
+  </body>
+</html>
